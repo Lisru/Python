@@ -732,7 +732,7 @@ helloFile = open(Path.cwd()/'busy.py')
 ### 读取文件内容
 
 ```python
-content = helloFile.read()		#单个大字符串
+content = helloFile.read()			#单个大字符串
 
 constent1 = helloFile.readlines()	#字符串的列表
 ```
@@ -749,3 +749,23 @@ baconFile.write('bacon is not a vegetable')
 baconFile.close()
 ```
 
+
+
+# 七、组织文件
+
+## shutil模块
+
+### 复制文件和文件夹
+
+shutil.copy(source, destination)，将路径 source 处的文件复制到路径 destination
+
+处的文件夹（source 和 destination 都是字符串）。如果 destination 是一个文件名，它将
+
+作为被复制文件的新名字。该函数返回一个字符串，表示被复制文件的路径。
+
+```python
+import shutil,os
+os.chadir('C:\\')
+shutil.copy('C:\\spam.txt', 'C:\\delicious')	#将C盘下的spam.txt复制到delicious文件下
+shutil.copy('eggs.txt', 'C:\\delicious\\eggs2.txt')	#'C:\\delicious\\eggs2.txt'
+```
