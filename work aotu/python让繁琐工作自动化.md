@@ -749,6 +749,27 @@ baconFile.write('bacon is not a vegetable')
 baconFile.close()
 ```
 
+## 用shelve模块保存变量
+
+shelve模块可以再程序中添加“保存”和“打开”功能。
+
+```python
+import shelve
+shelfFile = shelve.open('mydata')
+cats = ['Zophie', 'Pooka', 'Simon']
+shelfFile['cats'] = cats
+shelfFile.close()
+```
+
+在 Windows 上运行前面的代码，你会看到在当前工作目录下有 3 个新文件：mydata.bak、mydata.dat 和 mydata.dir。在 OS X 上，只会创建一个 mydata.db 文件。
+
+```python
+shelfFile = shelve.open('mydata')
+type(shelfFile)		#<class 'shelve.DbfilenameShelf'>
+shelfFile['cats']	#['Zophie', 'Pooka', 'Simon']
+shelfFile.close()
+```
+
 
 
 # 七、组织文件
@@ -757,11 +778,9 @@ baconFile.close()
 
 ### 复制文件和文件夹
 
-shutil.copy(source, destination)，将路径 source 处的文件复制到路径 destination
+shutil.copy(A, B)，将A处的文件复制到路径 B下。如果 B是一个文件名，它将作为被复制文件的新名字。该函数返回一个字符串，表示被复制文件的路径。
 
-处的文件夹（source 和 destination 都是字符串）。如果 destination 是一个文件名，它将
-
-作为被复制文件的新名字。该函数返回一个字符串，表示被复制文件的路径。
+该函数返回新复制的文件夹的路径的字符串。
 
 ```python
 import shutil,os
@@ -769,3 +788,131 @@ os.chadir('C:\\')
 shutil.copy('C:\\spam.txt', 'C:\\delicious')	#将C盘下的spam.txt复制到delicious文件下
 shutil.copy('eggs.txt', 'C:\\delicious\\eggs2.txt')	#'C:\\delicious\\eggs2.txt'
 ```
+
+shutil.copytree(A，B)将复制整个文件夹。如果最后的文件夹名字不同，将文件夹名字修改为B的
+
+```python
+import shutil, os
+os.chdir('C:\\')
+shutil.copytree('C:\\bacon', 'C:\\bacon_backup')	#'C:\\bacon_backup'
+```
+
+
+
+### 文件和文件夹的移动与改名
+
+shutil.move(A, B)，将路径A的文件夹移动到路径B，并返回新位置的绝对路径的字符串。
+
+```python
+import shutil
+shutil.move('C:\\bacon.txt', 'C:\\eggs')	#'C:\\eggs\\bacon.txt'
+```
+
+如果B指定是文件名，会将原来的文件名修改。
+
+```python
+>>>shutil.move('C:\\bacon.txt', 'C:\\eggs\\new_bacon.txt')
+'C:\\eggs\\new_bacon.txt'
+```
+
+
+
+### 永久删除文件和文件夹
+
++ os.unlink(path)将删除 path 处的文件。
++ os.rmdir(path)将删除 path 处的文件夹。该文件夹必须为空，其中没有任何文件和文件夹。
++ shutil.rmtree(path)将删除 path 处的文件夹，它包含的所有文件和文件夹都会被删除。
+
+
+
+### send2trash安全删除
+
+send2trash会将删除的文件和文件夹发送到计算机的回收站，而不是永久的删除。
+
+```python
+import send2trash
+send2trash.send2trash('bacon.txt')
+```
+
+
+
+## 遍历目录树
+
+os.walk()：
+
+输入：一个文件夹路径
+
+输出：
+
+1. 当前文件夹名称
+2. 当前文件夹中子文件夹列表
+3. 当前文件夹中文件列表
+
+```python
+import os
+for folderName, subfolders, filenames in os.walk('C:\\delicious'):\
+    print('The current folder is ' + folderName)
+	for subfolder in subfolders:
+		print('SUBFOLDER OF ' + folderName + ': ' + subfolder)
+	for filename in filenames:
+		print('FILE INSIDE ' + folderName + ': '+ filename)
+	print('')
+```
+
+
+
+## zipfile模块压缩文件
+
+### 读取zip文件
+
+```python
+import zipfile, os
+
+exampleZip = zipfile.ZipFile('example.zip')
+exampleZip.namelist()		#返回 ZIP 文件中包含的所有文件和文件夹的字符串的列表
+							#['spam.txt', 'cats/', 'cats/catnames.txt', cats/zophie.jpg']
+spamInfo = exampleZip.getinfo('spam.txt')	#返回zipinfo对象，包含示原来文件大小和压缩后文件大小
+spamInfo.file_size							#原来文件大小
+spamInfo.compress_size						#压缩后文件大小
+
+exampleZip.close()
+```
+
+
+
+### 从zip文件中解压
+
+```python
+import zipfile, os
+
+exampleZip = zipfile.ZipFile('example.zip')
+exampleZip.extractall()		#解压到当前文件夹，可以传入字符串，解压到指定的路径下
+exampleZip.close()
+```
+
+解压单个文件
+
+```python
+>>> exampleZip.extract('spam.txt')		#参数必须匹配namelist()的返回值
+'C:\\spam.txt'
+>>> exampleZip.extract('spam.txt', 'C:\\some\\new\\folders')
+'C:\\some\\new\\folders\\spam.txt'
+>>> exampleZip.close()
+```
+
+
+
+### 创建和添加到zip文件
+
+创建自己的压缩zip文件，必须以“写”模式打开
+
+```python
+import zipfile
+newZip = zipfile.ZipFile('new.zip', 'w')
+newZip.write('spam.txt', compress_type=zipfile.ZIP_DEFLATED)
+newZip.close()
+```
+
+​	write()方法的第一个参数是一个字符串，代表要加的文件名。第二个参数是“压缩类型”参数，它告诉计算机使用怎样的算法来压缩文件。可以总是将这个值设置为 zipfile.ZIP_DEFLATED（这指定了 deflate 压缩算法，它对各种类型的数据都很有效）。
+
+​	如果只是希望将文件添加到原有的 ZIP 文件中，就要向 zipfile.ZipFile()传入'a'作为第二个参数，以添加模式打开 ZIP 文件。
