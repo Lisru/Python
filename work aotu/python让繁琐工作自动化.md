@@ -915,4 +915,163 @@ newZip.close()
 
 ​	write()方法的第一个参数是一个字符串，代表要加的文件名。第二个参数是“压缩类型”参数，它告诉计算机使用怎样的算法来压缩文件。可以总是将这个值设置为 zipfile.ZIP_DEFLATED（这指定了 deflate 压缩算法，它对各种类型的数据都很有效）。
 
+```python
+newzip = zipfile.ZipFile('aaa.zip','a')
+newzip.write('bacon.txt',compress_type=zipfile.ZIP_DEFLATED)
+newzip.close()
+```
+
 ​	如果只是希望将文件添加到原有的 ZIP 文件中，就要向 zipfile.ZipFile()传入'a'作为第二个参数，以添加模式打开 ZIP 文件。
+
+
+
+# 八、调试
+
+## 抛出异常
+
+### 抛出自己的异常
+
++ raise关键字
++ 对Exception()函数的调用
++ 传递给Exception()函数的字符串，包含有用的错误信息
+
+```python
+raise Exception('this is a error message')
+```
+
+如果没有try和except语句来覆盖抛出异常的raise语句，那么程序就会崩溃。
+
+### try-except
+
+使用try和except能更优雅的处理异常，而不会使程序崩溃。
+
+```python
+def boxPrint(symbol,width,height):
+    if len(symbol) != 1:
+        raise Exception('Symbol must be a single character string')
+    if width <= 2:
+        raise Exception('Width must be greater than 2')
+    if height <= 2:
+        raise Exception('Height must be greater than 2')
+    
+    print(symbol * width)
+    for i in range(height -2):
+        print(symbol + (' ' * (width-2))+symbol)
+    print(symbol * width)
+
+for sym,w,h in (('*',4,4),('0',20,5),('x',1,3),('ZZ',3,3)):
+    try:
+        boxPrint(sym,w,h)
+    except Exception as err:
+        print('A exception happend:'+str(err))
+```
+
+上面的异常如果返回一个Exception对象，将对象保存在err变量中。
+
+上面的输出结果如下：
+
+```python
+****
+*  *
+*  *
+****
+00000000000000000000
+0                  0
+0                  0
+0                  0
+00000000000000000000
+A exception happend:Width must be greater than 2
+A exception happend:Symbol must be a single character string
+```
+
+
+
+## 回溯字符串
+
+python遇到错误时，会生成错误信息，称为“回溯”，错误信息包含导致该错误的函数调用的序列。
+
+```python
+import traceback
+try:
+    raise Exception('this is a err message')
+except:
+    errFile = open('errInfo.txt','w')
+    errFile.write(traceback.format_exc())
+    errFile.close()
+    print('aaaaaa')
+```
+
+
+
+## 断言
+
+“断言”是健全性检查，用于确保代码没有做什么明显错误，有assert语句执行。如果检查失败就抛出异常。
+
+```python
+ages = [26,57,92,54,22,15,17,80,47,73]
+ages.sort()
+ages
+assert ages[0]<=ages[-1]
+```
+
+断言成功，不执行任何操作。
+
+如果不小心调用reverse()，assert将引发AssertionError。
+
+断言失败，程序应该崩溃。断言主要针对程序员的错误。
+
+
+
+## 日志logging模块
+
+```python
+from cmath import log
+import logging
+logging.basicConfig(level=logging.DEBUG,format = '%(asctime)s - %(levelname)s - %(message)s')
+logging.debug("Start of program")
+
+def factorial(n):
+    logging.debug('Start of factorial(%s%%)'%(n))
+    total = 1
+    for i in range(1,n+1):
+        total *=i
+        logging.debug('i is '+str(i)+' ,total is '+ str(total))
+    logging.debug('End of factorial(%s%%)'%(n))
+    return total
+
+print(factorial(5))
+logging.debug('End of program')
+```
+
+输出为：
+
+```
+2022-06-23 16:25:05,647 - DEBUG - Start of program
+2022-06-23 16:25:05,647 - DEBUG - Start of factorial(5%)
+2022-06-23 16:25:05,647 - DEBUG - i is 1 ,total is 1
+2022-06-23 16:25:05,648 - DEBUG - i is 2 ,total is 2
+2022-06-23 16:25:05,648 - DEBUG - i is 3 ,total is 6
+2022-06-23 16:25:05,648 - DEBUG - i is 4 ,total is 24
+2022-06-23 16:25:05,648 - DEBUG - i is 5 ,total is 120
+2022-06-23 16:25:05,648 - DEBUG - End of factorial(5%)
+```
+
+不要用print()调试，logging.debug()调试可以通过调用logging.disable(logging.CRITICAL)就可以禁止日志了。
+
+### 日志级别
+
+p204页
+
+### 将日志写入文件
+
+日志消息保存到log.txt文件中。
+
+```python
+import logging
+logging.basicConfig(filename='log.txt',level=logging.DEBUG,format =  '%(asctime)s - %(levelname)s - %(message)s')
+```
+
+
+
+# 九、Web抓取信息
+
