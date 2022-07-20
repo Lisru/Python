@@ -1075,3 +1075,37 @@ logging.basicConfig(filename='log.txt',level=logging.DEBUG,format =  '%(asctime)
 
 # 九、Web抓取信息
 
+**webbrowser**:是python自带的，打开浏览器获取指定页面。
+
+**request**：从因特网上下载文件和网页。
+
+**Beautiful Soup**:解析HTML，即网页编写的格式。
+
+**selenium**：启动并控制一个Web浏览器。selenium能够填写表单，并模拟鼠标在这个浏览器中点击。
+
+
+
+## webbrowser模块
+
+自动在地图打开用户输入的地址，或者剪切板的地址
+
+```python
+import webbrowser,sys,pyperclip
+
+if len(sys.argv) >1:    			  #获取用户的输入
+  address = ' '.join(sys.argv[1:])    #将用户输入以空格衔接，连接起来
+else:
+  address = pyperclip.paste()         #如果用户没有参数，默认从剪切板拿数据
+
+webbrowser.open('https://map.baidu.com/search?querytype=s&da_src=shareurl&wd='+address)
+
+```
+
+
+
+## 用request从Web下载文件
+
+request模块可以很容易从Web下载文件，不必担心诸如网络错误，连接问题等。
+
+### request.get()下载一个网页
+
