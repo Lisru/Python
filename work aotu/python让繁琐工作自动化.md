@@ -1109,3 +1109,58 @@ request模块可以很容易从Web下载文件，不必担心诸如网络错误�
 
 ### request.get()下载一个网页
 
+requests.get()函数接受一个要下载的URL字符串，通过在返回值上调用type()，可以看到它返回一个Response对象。
+
+```python
+import requests
+
+res = requests.get('http://www.gutenberg.org/cache/epub/1112/pg1112.txt')
+type(res)
+```
+
+
+
+该URL指向一个文本页面，检查Response对象的status_code属性，你可以了解对这个网页的请求是否成功。调用res.text显示字符
+
+```python
+res.status_code == requests.codes.ok
+print(res.text[:250])	//前250个字符
+```
+
+
+
+### 检查错误
+
+检查成功有一种简单的方法，就是在 Response对象上调用 raise_for_status()方法。如果下载文件出错，这将抛出异常。
+
+```python
+res = requests.get('http://inventwithpython.com/page_that_does_not_exist')
+res.raise_for_status()
+```
+
+
+
+### 将下载的文件保存到硬盘
+
+必须用“写二进制”模式打开该文件，即向函数传入字符串'wb'，作为 open()的第二参数。
+
+```python
+import requests
+
+res = requests.get('http://www.gutenberg.org/cache/epub/1112/pg1112.txt')
+res.raise_for_status()
+playFile = open('RomeoAndJuliet.txt','wb')
+
+for chunk in res.iter_content(100000):
+  playFile.write(chunk)
+
+playFile.close()
+```
+
+iter_content()每次迭代一段，传入的参数为每段的字节数。
+
+
+
+## 用BeautifulSoup模块解析HTML
+
+Beautiful Soup 是一个模块，用于从 HTML 页面中提取信息。要安装它，需要在命令行中运行 pip install beautifulsoup4，但要导入它，就使用 import bs4。
